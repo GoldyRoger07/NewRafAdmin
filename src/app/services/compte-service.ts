@@ -32,7 +32,7 @@ export class CompteService {
           points: 15,
           email: 'sasugou1@gmail.com',
           codePromo: 'RAIKI_PROMO',
-          idAgent: 'raiki_code',
+          idAgent: 'lg12345678',
           password: 'no_password',
           urlPhotoProfile: 'just_a_image'
         },
@@ -51,7 +51,26 @@ export class CompteService {
           points: 10,
           email: 'latouche822@gmail.com',
           codePromo: 'LATOUCHE_PROMO',
-          idAgent: 'sonix_code',
+          idAgent: 'fg345678',
+          password: 'no_password',
+          urlPhotoProfile: 'just_a_image'
+        },
+        {
+          idCompte: 'dracule15678',
+          nom: 'Dracule',
+          prenom: 'Mihawk',
+          username: 'hawkeye',
+          createdAt: new Date(),
+          telephone: '34977530',
+          role: 'USER',
+          actif: true,
+          idConnection: 'NO_CONNECTION',
+          solde: 35000,
+          soldePromo: 300,
+          points: 44,
+          email: 'latouche822@gmail.com',
+          codePromo: 'LATOUCHE_PROMO',
+          idAgent: 'NO_AGENT',
           password: 'no_password',
           urlPhotoProfile: 'just_a_image'
         }

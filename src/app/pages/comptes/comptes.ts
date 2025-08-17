@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { Component, OnInit, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
@@ -20,6 +20,7 @@ import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { Compte } from '../../models/Compte';
 import { CompteService } from '../../services/compte-service';
+import { CustomCurrencyPipe } from "../../../custom-currency.pipe";
 
 interface Column {
     field: string;
@@ -40,28 +41,34 @@ interface TransactionDetails{
     points: number;
 }
 
+interface SelectType{
+    label: string;
+    value: string;
+}
+
 @Component({
   selector: 'app-comptes',
   imports: [
-        CommonModule,
-        TableModule,
-        FormsModule,
-        ButtonModule,
-        RippleModule,
-        ToastModule,
-        ToolbarModule,
-        RatingModule,
-        InputTextModule,
-        TextareaModule,
-        SelectModule,
-        RadioButtonModule,
-        InputNumberModule,
-        DialogModule,
-        TagModule,
-        InputIconModule,
-        IconFieldModule,
-        ConfirmDialogModule
-    ],
+    CommonModule,
+    TableModule,
+    FormsModule,
+    ButtonModule,
+    RippleModule,
+    ToastModule,
+    ToolbarModule,
+    RatingModule,
+    InputTextModule,
+    TextareaModule,
+    SelectModule,
+    RadioButtonModule,
+    InputNumberModule,
+    DialogModule,
+    TagModule,
+    InputIconModule,
+    IconFieldModule,
+    ConfirmDialogModule,
+    CustomCurrencyPipe
+],
   template: `
     <p-toolbar styleClass="mb-6">
             <ng-template #start>
@@ -82,7 +89,7 @@ interface TransactionDetails{
             [rows]="10"
             [columns]="cols"
             [paginator]="true"
-            [globalFilterFields]="['username', 'nom', 'prenom', 'actif']"
+            [globalFilterFields]="['username', 'nom', 'prenom', 'actif','idCompte','role','email']"
             [tableStyle]="{ 'min-width': '75rem' }"
             [(selection)]="selectedComptes"
             [rowHover]="true"
@@ -118,6 +125,9 @@ interface TransactionDetails{
                         Username
                         <p-sortIcon field="username" />
                     </th>
+                    <th style="min-width: 8rem">
+                        Role
+                    </th>
                     <th  style="min-width:8rem">
                         Telephone
                     
@@ -125,6 +135,9 @@ interface TransactionDetails{
                     <th pSortableColumn="actif" style="min-width: 8rem">
                         Actif
                         <p-sortIcon field="actif" />
+                    </th>
+                    <th style="min-width: 12rem">
+                        ID Connection
                     </th>
                     <th pSortableColumn="solde" style="min-width: 12rem">
                         Solde
@@ -134,9 +147,15 @@ interface TransactionDetails{
                         Solde Promo
                         <p-sortIcon field="soldePromo" />
                     </th>
-                    <th pSortableColumn="points" style="min-width: 12rem">
+                    <th pSortableColumn="points" style="min-width: 8rem">
                         Points
                         <p-sortIcon field="points" />
+                    </th>
+                    <th style="min-width: 8rem">
+                        ID Agent
+                    </th>
+                    <th style="min-width: 12rem">
+                        Email
                     </th>
                     <th style="min-width: 10rem">Actions</th>
                 </tr>
@@ -153,6 +172,7 @@ interface TransactionDetails{
                         {{compte.prenom}}
                     </td>
                     <td style="min-width: 8rem">{{ compte.username }}</td>
+                    <td style="min-width: 8rem">{{compte.role}}</td>
                     <td style="min-width: 8rem">{{ compte.telephone }}</td>
                     <!-- <td>
 
@@ -162,13 +182,22 @@ interface TransactionDetails{
                         <p-tag [value]="compte.actif?'OUI':'NON'" [severity]="getSeverity(compte.actif)" />
                     </td>
                     <td style="min-width: 12rem">
-                        {{compte.solde | currency: 'HTG '}}
+                        {{compte.idConnection==='NO_CONNECTION'?'Deconnected':compte.idConnection}}
                     </td>
                     <td style="min-width: 12rem">
-                        {{compte.soldePromo | currency: 'HTG '}}
+                        {{compte.solde | customCurrency}}
                     </td>
                     <td style="min-width: 12rem">
+                        {{compte.soldePromo | customCurrency}}
+                    </td>
+                    <td style="min-width: 8rem">
                         {{compte.points+' pts'}}
+                    </td>
+                    <td style="min-width: 8rem">
+                        {{compte.idAgent}}
+                    </td>
+                    <td style="min-width: 12rem">
+                        {{compte.email}}
                     </td>
                     <td style="min-width: 10rem">
                         <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editCompte(compte)" />
@@ -217,6 +246,24 @@ interface TransactionDetails{
                         <label for="actif" class="block font-bold mb-3">Actif</label>
                         <p-select [(ngModel)]="compte.actif" inputId="actif" [options]="etatsCompte" optionLabel="label" optionValue="value" placeholder="Select a Status" fluid />
                     </div>
+
+                   
+                        <div>
+                            <label for="selectIdAgent" class="block font-bold mb-3">ID Agent</label>
+                            <p-select inputId="selectIdAgent" [options]="idAgents" [(ngModel)]="compte.idAgent" optionLabel="label" optionValue="value" [filter]="true" filterBy="label"  [showClear]="true" placeholder="Select an ID Agent" fluid>
+                                    <ng-template #selectedItem let-selectedOption>
+                                        <div class="flex items-center gap-2">
+                                            <div>{{ selectedOption.label }}</div>
+                                        </div>
+                                    </ng-template>
+                                    <ng-template let-idAgent #item>
+                                        <div class="flex items-center gap-2">
+                                            <div>{{ idAgent.label }}</div>
+                                        </div>
+                                    </ng-template>
+                                </p-select> 
+                        </div>
+                    
 
                     <div>
                         <label for="idConnection" class="block font-bold mb-3">ID Connection</label>
@@ -288,14 +335,14 @@ interface TransactionDetails{
                         <div class="flex flex-col gap-2 w-full">
                             <span class="text-[12px] text-gray-500">Solde</span>
                             <span class=" text-2xl text-gray-700">
-                                {{calculTransaction((compte.solde || 0),transactionDetails.montant,transactionDetails.type)}} HTG
+                                {{calculTransaction((compte.solde || 0),transactionDetails.montant,transactionDetails.type) | customCurrency}}
                             </span>
                         </div>
 
                         <div class="flex flex-col gap-2 w-full">
                             <span class="text-[12px] text-gray-500">Solde Promo</span>
                             <span class="text-2xl text-gray-700">
-                                {{calculTransaction((compte.soldePromo || 0),transactionDetails.montantPromo,transactionDetails.type)}} HTG
+                                {{calculTransaction((compte.soldePromo || 0),transactionDetails.montantPromo,transactionDetails.type) | customCurrency}}
                             </span>
                         </div>
                     </div>
@@ -340,7 +387,7 @@ interface TransactionDetails{
         <p-confirmdialog [style]="{ width: '450px' }" />
     
   `,
-  providers: [MessageService, ConfirmationService]
+  providers: [MessageService, ConfirmationService, DecimalPipe]
 })
 export class Comptes implements OnInit{
     compteDialog: boolean = false;
@@ -374,6 +421,11 @@ export class Comptes implements OnInit{
         montantPromo: 0,
         points: 0
     }
+    
+    idAgents:SelectType[] = [
+        {label: 'No Agent',value: 'NO_AGENT'}
+    ];
+    
 
     constructor(
         private compteService: CompteService,
@@ -451,13 +503,13 @@ export class Comptes implements OnInit{
     }
 
     openNew() {
-        this.compte = {};
+        this.compte = new Compte();
         this.submitted = false;
         this.compteDialog = true;
     }
 
     openDeposit(){
-        this.compte = this.selectedComptes?this.selectedComptes[0]:{}
+        this.compte = this.selectedComptes?this.selectedComptes[0]:new Compte()
         this.transactionDetails.header = 'Make A Deposit'
         this.transactionDetails.type = 'depot'
         this.transactionsDialog = true
@@ -465,7 +517,7 @@ export class Comptes implements OnInit{
     }
 
     openWidthdraw(){
-        this.compte = this.selectedComptes?this.selectedComptes[0]:{}
+        this.compte = this.selectedComptes?this.selectedComptes[0]:new Compte()
         this.transactionDetails.header = 'Make A Widthdraw'
         this.transactionDetails.type = 'retrait'
         this.transactionsDialog = true
@@ -485,7 +537,27 @@ export class Comptes implements OnInit{
             if(this.compte.idConnection!=='NO_CONNECTION')
                 this.idConnections.push({label: this.compte.idConnection, value: this.compte.idConnection})
         }
+        this.loadIdAgents(true)
         this.compteDialog = true;
+    }
+
+    loadIdAgents(isEdit: boolean){
+        this.compteService.getComptes().then((data)=>{
+            if(isEdit){
+                const newTab = data.filter((compte) => compte.idCompte !== this.compte.idCompte).map( compte => { 
+                        const result: SelectType = {label:compte.username as string,value:compte.idCompte as string}
+                        return result})
+
+             this.idAgents = [
+                    {label: 'No Agent',value: 'NO_AGENT'},
+                    ...newTab
+             ];
+             
+
+              console.log(this.idAgents[0])
+            }
+        })
+        
     }
 
     deleteSelectedComptes() {
@@ -521,7 +593,7 @@ export class Comptes implements OnInit{
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
                 this.comptes.set(this.comptes().filter((val) => val.idCompte !== compte.idCompte));
-                this.compte = {};
+                this.compte = new Compte();
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Successful',
@@ -595,7 +667,7 @@ export class Comptes implements OnInit{
             }
 
             this.compteDialog = false;
-            this.compte = {};
+            this.compte = new Compte();
         }
     }
 }

@@ -1,0 +1,14 @@
+.messages-wrapper{
+    transition:
+        transform var(--layout-section-transition-duration),
+        left var(--layout-section-transition-duration);
+    background-color: var(--surface-overlay);
+    height: calc(100vh - 8rem);
+    border-radius: var(--content-border-radius);
+}
+
+
+.search-input-wrapper:has(.search-input:focus){
+    background: transparent;
+    
+}

@@ -33,6 +33,11 @@ export class AppMenu {
                         label: 'Comptes',
                         icon: 'pi pi-user',
                         routerLink: ['/pages/comptes']
+                    },
+                    {
+                        label: 'Messages',
+                        icon: 'pi pi-envelope',
+                        routerLink: ['/pages/messages']
                     }
                 ]
             },
