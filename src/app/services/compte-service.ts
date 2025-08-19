@@ -2,82 +2,52 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { UrlService } from './url-service';
 import { Compte } from '../models/Compte';
+import { LocalDBService } from './local-dbservice';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CompteService {
 
+   private comptes$:BehaviorSubject<Compte[]> = new BehaviorSubject<Compte[]>([])
     
-    constructor(private http: HttpClient,private urlService: UrlService){}
+    emitComptes(comptes:Compte[]){
+      this.comptes$.next(comptes)
+    }
+
+    constructor(private http: HttpClient,private urlService: UrlService,private localDBService: LocalDBService){
+      this.comptes$ = localDBService.comptes$
+      // this.createCompte()
+    }
 
     login(email: string, password: string,rememberMe: boolean){
       return this.http.post(this.urlService.baseUrl+"compte/login?remember_me="+rememberMe,{email:email,password:password})
     }
 
-    getComptesData(): Compte[]{
-      return [
-        {
-          idCompte: 'fg345678',
-          nom: 'Gouraige',
-          prenom: 'Francesse',
-          username: 'Raiki',
-          createdAt: new Date(),
-          telephone: '37297929',
-          role: 'ADMIN',
-          actif: true,
-          idConnection: '2223455',
-          solde: 50000,
-          soldePromo: 850,
-          points: 15,
-          email: 'sasugou1@gmail.com',
-          codePromo: 'RAIKI_PROMO',
-          idAgent: 'lg12345678',
-          password: 'no_password',
-          urlPhotoProfile: 'just_a_image'
-        },
-        {
-          idCompte: 'lg12345678',
-          nom: 'Latouche',
-          prenom: 'Gerson',
-          username: 'Sonix',
-          createdAt: new Date(),
-          telephone: '34977530',
-          role: 'ADMIN',
-          actif: true,
-          idConnection: 'NO_CONNECTION',
-          solde: 45000,
-          soldePromo: 800,
-          points: 10,
-          email: 'latouche822@gmail.com',
-          codePromo: 'LATOUCHE_PROMO',
-          idAgent: 'fg345678',
-          password: 'no_password',
-          urlPhotoProfile: 'just_a_image'
-        },
-        {
-          idCompte: 'dracule15678',
-          nom: 'Dracule',
-          prenom: 'Mihawk',
-          username: 'hawkeye',
-          createdAt: new Date(),
-          telephone: '34977530',
-          role: 'USER',
-          actif: true,
-          idConnection: 'NO_CONNECTION',
-          solde: 35000,
-          soldePromo: 300,
-          points: 44,
-          email: 'latouche822@gmail.com',
-          codePromo: 'LATOUCHE_PROMO',
-          idAgent: 'NO_AGENT',
-          password: 'no_password',
-          urlPhotoProfile: 'just_a_image'
-        }
-      ]
+    createCompte(){
+     
     }
 
-    getComptes() {
-      return Promise.resolve(this.getComptesData())
+    getCompteByEmail(email:string){
+      const predicat = (compte:Compte) => {
+        return compte.email === email
+      }
+
+     return this.localDBService.getCompteByPredicat(predicat)
+    }
+
+    getCompteById(id:string){
+      return this.localDBService.getCompteById(id)
+    }
+    
+    getComptes(): Observable<Compte[]>{
+      return this.comptes$.asObservable()
+    }
+
+    getComptesWithout(id:string){
+      const predicat = (compte:Compte) => compte.idCompte !== id
+      
+      return this.localDBService.getComptesByPredicat(predicat)
     }
 }

@@ -21,6 +21,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { Compte } from '../../models/Compte';
 import { CompteService } from '../../services/compte-service';
 import { CustomCurrencyPipe } from "../../../custom-currency.pipe";
+import { Observable } from 'rxjs';
 
 interface Column {
     field: string;
@@ -85,7 +86,7 @@ interface SelectType{
 
         <p-table
             #dt
-            [value]="comptes()"
+            [value]="(comptes$ | async) || []"
             [rows]="10"
             [columns]="cols"
             [paginator]="true"
@@ -394,7 +395,7 @@ export class Comptes implements OnInit{
 
     transactionsDialog: boolean = false
 
-    comptes = signal<Compte[]>([]);
+    comptes$:Observable<Compte[]> = new Observable<Compte[]>();
 
     compte!: Compte;
 
@@ -442,9 +443,7 @@ export class Comptes implements OnInit{
     }
 
     loadDemoData() {
-        this.compteService.getComptes().then((data: Compte[]) => {
-            this.comptes.set(data);
-        });
+       this.comptes$ = this.compteService.getComptes()
 
         this.etatsCompte = [
             { label: 'OUI', value: true },
@@ -537,28 +536,28 @@ export class Comptes implements OnInit{
             if(this.compte.idConnection!=='NO_CONNECTION')
                 this.idConnections.push({label: this.compte.idConnection, value: this.compte.idConnection})
         }
-        this.loadIdAgents(true)
+        // this.loadIdAgents(true)
         this.compteDialog = true;
     }
 
-    loadIdAgents(isEdit: boolean){
-        this.compteService.getComptes().then((data)=>{
-            if(isEdit){
-                const newTab = data.filter((compte) => compte.idCompte !== this.compte.idCompte).map( compte => { 
-                        const result: SelectType = {label:compte.username as string,value:compte.idCompte as string}
-                        return result})
+    // loadIdAgents(isEdit: boolean){
+    //     this.compteService.getComptes().then((data)=>{
+    //         if(isEdit){
+    //             const newTab = data.filter((compte) => compte.idCompte !== this.compte.idCompte).map( compte => { 
+    //                     const result: SelectType = {label:compte.username as string,value:compte.idCompte as string}
+    //                     return result})
 
-             this.idAgents = [
-                    {label: 'No Agent',value: 'NO_AGENT'},
-                    ...newTab
-             ];
+    //          this.idAgents = [
+    //                 {label: 'No Agent',value: 'NO_AGENT'},
+    //                 ...newTab
+    //          ];
              
 
-              console.log(this.idAgents[0])
-            }
-        })
+    //           console.log(this.idAgents[0])
+    //         }
+    //     })
         
-    }
+    // }
 
     deleteSelectedComptes() {
         this.confirmationService.confirm({
@@ -566,7 +565,7 @@ export class Comptes implements OnInit{
             header: 'Confirm',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.comptes.set(this.comptes().filter((val: any) => !this.selectedComptes?.includes(val)));
+                // this.comptes.set(this.comptes().filter((val: any) => !this.selectedComptes?.includes(val)));
                 this.selectedComptes = null;
                 this.messageService.add({
                     severity: 'success',
@@ -592,7 +591,7 @@ export class Comptes implements OnInit{
             header: 'Confirm',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.comptes.set(this.comptes().filter((val) => val.idCompte !== compte.idCompte));
+                // this.comptes.set(this.comptes().filter((val) => val.idCompte !== compte.idCompte));
                 this.compte = new Compte();
                 this.messageService.add({
                     severity: 'success',
@@ -604,17 +603,17 @@ export class Comptes implements OnInit{
         });
     }
 
-    findIndexById(id: string): number {
-        let index = -1;
-        for (let i = 0; i < this.comptes().length; i++) {
-            if (this.comptes()[i].idCompte === id) {
-                index = i;
-                break;
-            }
-        }
+    // findIndexById(id: string): number {
+    //     let index = -1;
+    //     for (let i = 0; i < this.comptes().length; i++) {
+    //         if (this.comptes()[i].idCompte === id) {
+    //             index = i;
+    //             break;
+    //         }
+    //     }
 
-        return index;
-    }
+    //     return index;
+    // }
 
     createId(): string {
         let id = '';
@@ -642,32 +641,32 @@ export class Comptes implements OnInit{
     }
 
     saveCompte() {
-        this.submitted = true;
-        let _comptes = this.comptes();
-        if (this.compte.username?.trim()) {
-            if (this.compte.idCompte) {
-                _comptes[this.findIndexById(this.compte.idCompte)] = this.compte;
-                this.comptes.set([..._comptes]);
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Successful',
-                    detail: 'Compte Updated',
-                    life: 3000
-                });
-            } else {
-                this.compte.idCompte = this.createId();
-                this.compte.urlPhotoProfile = 'product-placeholder.svg';
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Successful',
-                    detail: 'Compte Created',
-                    life: 3000
-                });
-                this.comptes.set([..._comptes, this.compte]);
-            }
+        // this.submitted = true;
+        // let _comptes = this.comptes();
+        // if (this.compte.username?.trim()) {
+        //     if (this.compte.idCompte) {
+        //         _comptes[this.findIndexById(this.compte.idCompte)] = this.compte;
+        //         this.comptes.set([..._comptes]);
+        //         this.messageService.add({
+        //             severity: 'success',
+        //             summary: 'Successful',
+        //             detail: 'Compte Updated',
+        //             life: 3000
+        //         });
+        //     } else {
+        //         this.compte.idCompte = this.createId();
+        //         this.compte.urlPhotoProfile = 'product-placeholder.svg';
+        //         this.messageService.add({
+        //             severity: 'success',
+        //             summary: 'Successful',
+        //             detail: 'Compte Created',
+        //             life: 3000
+        //         });
+        //         this.comptes.set([..._comptes, this.compte]);
+        //     }
 
-            this.compteDialog = false;
-            this.compte = new Compte();
-        }
+        //     this.compteDialog = false;
+        //     this.compte = new Compte();
+        // }
     }
 }
