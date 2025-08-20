@@ -32,10 +32,11 @@ export class LocalDBService {
   }
 
 
-  comptes$: BehaviorSubject<Compte[]> = new BehaviorSubject<Compte[]>([])
-  
+  comptesSource$!: BehaviorSubject<Compte[]>;
+  comptes$!: Observable<Compte[]>;
 
-  messages$: BehaviorSubject<Message[]> = new BehaviorSubject<Message[]>([])
+  messagesSource$!: BehaviorSubject<Message[]>;
+  messages$!: Observable<Message[]>;
 
   constructor(){
     if(!localStorage.getItem("localDB")){
@@ -44,7 +45,23 @@ export class LocalDBService {
     }
 
     this.localDB = JSON.parse(localStorage.getItem("localDB") as string) as LocalDB
-    this.comptes$.next(this.localDB.compteTable.comptes)
+    
+    this.comptesSource$ = new BehaviorSubject<Compte[]>(this.localDB.compteTable.comptes)
+    this.comptes$ = this.comptesSource$.asObservable()
+    
+    this.messagesSource$ = new BehaviorSubject<Message[]>(this.localDB.messageTable.messages)
+    this.messages$ = this.messagesSource$.asObservable()
+    
+    
+
+  }
+
+  updateComptesSource(comptes:Compte[]){
+    this.comptesSource$.next(comptes)
+  }
+
+  updateMessagesSource(messages:Message[]){
+    this.messagesSource$.next(messages)
   }
 
   saveCompte(compte: Compte){
@@ -60,20 +77,20 @@ export class LocalDBService {
           this.localDB.compteTable.comptes[i] = compte
     }
 
-    this.comptes$.next(this.localDB.compteTable.comptes)
+    this.updateComptesSource(this.localDB.compteTable.comptes)
     
     this.save()
   }
 
   deleteCompte(idCompte: string){
     this.localDB.compteTable.comptes = this.localDB.compteTable.comptes.filter(compte => compte.idCompte !== idCompte)
-    this.comptes$.next(this.localDB.compteTable.comptes)
+    this.updateComptesSource(this.localDB.compteTable.comptes)
     this.save()
   }
 
   deleteMessage(idMessage: number){
     this.localDB.messageTable.messages = this.localDB.messageTable.messages.filter(message => message.id !== idMessage)
-    this.messages$.next(this.localDB.messageTable.messages)
+    this.updateMessagesSource(this.localDB.messageTable.messages)
     this.save()
   }
 
@@ -90,7 +107,7 @@ export class LocalDBService {
         this.localDB.messageTable.messages[i] = message
     }
 
-    this.messages$.next(this.localDB.messageTable.messages)
+    this.updateMessagesSource(this.localDB.messageTable.messages)
 
     this.save()
   }
@@ -99,9 +116,9 @@ export class LocalDBService {
     return this.localDB.compteTable.comptes.find( (compte:Compte) => compte.idCompte === idCompte )
   }
 
-  getComptes(){
-     this.comptes$.next(this.localDB.compteTable.comptes)
-  }
+  // getComptes(){
+  //    this.comptes$.next(this.localDB.compteTable.comptes)
+  // }
 
   getComptesByPredicat(predicat: any){
     return new Observable<Compte[]>(observer =>{

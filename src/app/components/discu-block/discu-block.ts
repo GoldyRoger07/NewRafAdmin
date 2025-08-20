@@ -10,7 +10,7 @@ import { Observable } from 'rxjs';
   imports: [CommonModule],
   template: `
   @let currentReceiver = currentReceiver$ | async;
-    <div (click)="onClick()" class="block-discussion p-2 flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-[var(--p-surface-800)]   rounded-lg {{currentReceiver?.idCompte === receiver.idCompte?activeClass:'' }} ">
+    <div (click)="onClick()" class="cursor-pointer block-discussion p-2 flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-[var(--p-surface-800)]   rounded-lg {{currentReceiver?.idCompte === receiver.idCompte?activeClass:'' }} ">
           <img class="w-[50px] rounded-full" [src]="receiver.urlPhotoProfile" alt="profile-user" >
           <div class="flex flex-col w-full">
               <div class="flex justify-between">

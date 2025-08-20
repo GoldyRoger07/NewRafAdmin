@@ -10,12 +10,9 @@ import { BehaviorSubject, Observable } from 'rxjs';
 })
 export class CompteService {
 
-   private comptes$:BehaviorSubject<Compte[]> = new BehaviorSubject<Compte[]>([])
+    comptes$!:Observable<Compte[]>
     
-    emitComptes(comptes:Compte[]){
-      this.comptes$.next(comptes)
-    }
-
+    
     constructor(private http: HttpClient,private urlService: UrlService,private localDBService: LocalDBService){
       this.comptes$ = localDBService.comptes$
       // this.createCompte()
@@ -41,10 +38,6 @@ export class CompteService {
       return this.localDBService.getCompteById(id)
     }
     
-    getComptes(): Observable<Compte[]>{
-      return this.comptes$.asObservable()
-    }
-
     getComptesWithout(id:string){
       const predicat = (compte:Compte) => compte.idCompte !== id
       

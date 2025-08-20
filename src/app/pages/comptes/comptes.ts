@@ -71,6 +71,7 @@ interface SelectType{
     CustomCurrencyPipe
 ],
   template: `
+  @let comptes = comptes$ | async;
     <p-toolbar styleClass="mb-6">
             <ng-template #start>
                 <p-button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
@@ -86,7 +87,7 @@ interface SelectType{
 
         <p-table
             #dt
-            [value]="(comptes$ | async) || []"
+            [value]="comptes || []"
             [rows]="10"
             [columns]="cols"
             [paginator]="true"
@@ -251,7 +252,7 @@ interface SelectType{
                    
                         <div>
                             <label for="selectIdAgent" class="block font-bold mb-3">ID Agent</label>
-                            <p-select inputId="selectIdAgent" [options]="idAgents" [(ngModel)]="compte.idAgent" optionLabel="label" optionValue="value" [filter]="true" filterBy="label"  [showClear]="true" placeholder="Select an ID Agent" fluid>
+                            <p-select inputId="selectIdAgent" [options]="loadIdAgents(comptes || [])" [(ngModel)]="compte.idAgent" optionLabel="label" optionValue="value" [filter]="true" filterBy="label"  [showClear]="true" placeholder="Select an ID Agent" fluid>
                                     <ng-template #selectedItem let-selectedOption>
                                         <div class="flex items-center gap-2">
                                             <div>{{ selectedOption.label }}</div>
@@ -443,7 +444,7 @@ export class Comptes implements OnInit{
     }
 
     loadDemoData() {
-       this.comptes$ = this.compteService.getComptes()
+       this.comptes$ = this.compteService.comptes$
 
         this.etatsCompte = [
             { label: 'OUI', value: true },
@@ -540,24 +541,27 @@ export class Comptes implements OnInit{
         this.compteDialog = true;
     }
 
-    // loadIdAgents(isEdit: boolean){
-    //     this.compteService.getComptes().then((data)=>{
-    //         if(isEdit){
-    //             const newTab = data.filter((compte) => compte.idCompte !== this.compte.idCompte).map( compte => { 
-    //                     const result: SelectType = {label:compte.username as string,value:compte.idCompte as string}
-    //                     return result})
+    loadIdAgents(comptes:Compte[]){
+            let idAgents:SelectType[] = []
+            
+                const newTab = comptes?.filter((compte) => compte.idCompte !== this.compte.idCompte).map( compte => { 
+                        const result: SelectType = {label:compte.username as string,value:compte.idCompte as string}
+                        return result})
 
-    //          this.idAgents = [
-    //                 {label: 'No Agent',value: 'NO_AGENT'},
-    //                 ...newTab
-    //          ];
+             idAgents = [
+                    {label: 'No Agent',value: 'NO_AGENT'},
+                    ...newTab
+             ];
              
 
-    //           console.log(this.idAgents[0])
-    //         }
-    //     })
+              console.log(this.idAgents[0])
+
+              
+            
+            
+            return idAgents
         
-    // }
+    }
 
     deleteSelectedComptes() {
         this.confirmationService.confirm({
@@ -625,19 +629,7 @@ export class Comptes implements OnInit{
     }
 
     getSeverity(actif: boolean) {
-        // switch (status) {
-        //     case 'INSTOCK':
-        //         return 'success';
-        //     case 'LOWSTOCK':
-        //         return 'warn';
-        //     case 'OUTOFSTOCK':
-        //         return 'danger';
-        //     default:
-        //         return 'info';
-        // }
-
-        return actif?'success':'danger'
-          
+        return actif?'success':'danger'  
     }
 
     saveCompte() {
